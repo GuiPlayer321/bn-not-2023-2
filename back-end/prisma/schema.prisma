@@ -9,3 +9,88 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
+enum Nivel {
+  BASICO
+  INTERMEDIARIO
+  AVANCADO
+}
+
+enum Area {
+  HUMANAS
+  EXATAS
+  BIOLOGICAS
+}
+
+enum UF {
+  SP
+  GO
+  MG
+  RJ
+  MS
+  PR
+  SC
+  DF
+  ES
+}
+
+enum DiaSemana {
+  DOM
+  SEG
+  TER
+  QUA
+  QUI
+  SEX
+  SAB
+}
+
+model Curso {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  nome       String
+  nivel      Nivel   @default(BASICO)
+  area       Area
+  valorTotal Float
+  turmas     Turma[]
+}
+
+model Professor {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  nome           String
+  formacao       String
+  cpf            String   @unique
+  dataNascimento DateTime
+  email          String   @unique
+  telefone       String
+  Turma          Turma[]
+}
+
+model Aluno {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  nome           String
+  cpf            String   @unique
+  dataNascimento String
+  logradouro     String
+  numImovel      String
+  complemento    String?
+  bairro         String
+  municipio      String
+  uf             UF
+  email          String   @unique
+  telefone       String
+  turmaIds       String[] @db.ObjectId
+  turmas         Turma[]  @relation(fields: [turmaIds], references: [id])
+}
+
+model Turma {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  cursoId     String     @db.ObjectId
+  curso       Curso      @relation(fields: [cursoId], references: [id])
+  professorId String?    @db.ObjectId
+  professor   Professor? @relation(fields: [professorId], references: [id])
+  diaSemana   DiaSemana
+  horaInicial Int
+  horaFinal   Int
+  ativa       Boolean    @default(true)
+  alunoIds    String[]   @db.ObjectId
+  alunos      Aluno[]    @relation(fields: [alunoIds], references: [id])
+}

@@ -14,8 +14,13 @@ controller.create = async function (req, res) {
 
 controller.retrieveAll = async function (req, res) {
   try {
+    let include = {};
+    if (req.query.professor) include.professor = true;
+    if (req.query.curso) include.curso = true;
+    if (req.query.alunos) include.alunos = true;
     const result = await prisma.turma.findMany({
-      
+      include,
+      orderBy: [{ diaSemana: "asc" }, { horaInicial: "asc" }],
     });
     res.send(result);
   } catch (error) {
